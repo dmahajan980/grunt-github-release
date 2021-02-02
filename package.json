@@ -1,0 +1,39 @@
+{
+  "name": "grunt-github-release",
+  "description": "A Grunt plugin to automate the process of creating a GitHub release for your project.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/divyanshu98/grunt-github-release",
+  "author": {
+    "name": "Divyanshu Mahajan",
+    "email": "divyanshumahajan98@gmail.com",
+    "url": "https://dmahajan980.github.io/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/divyanshu98/grunt-github-release.git"
+  },
+  "bugs": {
+    "url": "https://github.com/divyanshu98/grunt-github-release/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/divyanshu98/grunt-github-release/blob/master/LICENSE-MIT"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.9.2",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-nodeunit": "^0.3.3",
+    "grunt": "~0.4.5"
+  },
+  "keywords": [
+    "gruntplugin"
+  ]
+}
