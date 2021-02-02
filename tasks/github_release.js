@@ -8,43 +8,65 @@
 
 'use strict';
 
-module.exports = function(grunt) {
+const path = require('path');
+const checkRepo = require('./utils/checkRepo');
+const createRelease = require('./utils/createRelease');
+const uploadAsset = require('./utils/uploadAsset');
 
-  // Please see the Grunt documentation for more information regarding task
-  // creation: http://gruntjs.com/creating-tasks
+module.exports = function (grunt) {
+  grunt.registerTask(
+    'githubRelease',
+    'A Grunt plugin to automate the process of creating a GitHub release for your project.',
+    async function () {
+      // Callback to be triggered after the asynchronous task is completed.
+      const done = this.async();
 
-  grunt.registerMultiTask('github_release', 'A Grunt plugin to automate the process of creating a GitHub release for your project.', function() {
-    // Merge task-specific and/or target-specific options with these defaults.
-    var options = this.options({
-      punctuation: '.',
-      separator: ', '
-    });
+      const { repo, asset, releaseData, accessToken } = this.options();
+      const RELEASE_API = `https://api.github.com/repos/${repo}/releases`;
 
-    // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
-      // Concat specified files.
-      var src = f.src.filter(function(filepath) {
-        // Warn on and remove invalid source files (if nonull was set).
-        if (!grunt.file.exists(filepath)) {
-          grunt.log.warn('Source file "' + filepath + '" not found.');
-          return false;
-        } else {
-          return true;
+      // Check whether the authentication token isn't supplied.
+      if (!accessToken) {
+        grunt.log.error('GitHub access token cannot be found.');
+        return;
+      }
+
+      try {
+        // Initiate the release creation process.
+        grunt.log.subhead('Connecting to GitHub...');
+
+        await checkRepo(RELEASE_API, repo, accessToken);
+        grunt.log.ok('The connection has been established.');
+
+        // Create a release if the repository is accessible.
+        grunt.log.subhead(`Creating new release "${releaseData.tagName}" on GitHub...`);
+        const { releaseId, releaseUrl } = await createRelease(
+          RELEASE_API,
+          releaseData,
+          accessToken
+        );
+        grunt.log.ok(`The release has been created at ${releaseUrl}`);
+
+        if (asset) {
+          // Verify the asset file.
+          if (!grunt.file.exists(asset)) {
+            throw new Error(`The asset file "${assetBase}" does not exist.`);
+          } else if (!asset.includes('.zip')) {
+            throw new Error(`The asset "${assetBase}" is not a "zip" file.`);
+          }
+
+          // Start uploading the asset file to the created release.
+          grunt.log.subhead(
+            `Scanning and uploading asset file "${path.basename(asset)}"...`
+          );
+          const uploadStatus = await uploadAsset(releaseId, asset, repo, accessToken);
+          grunt.log.ok(uploadStatus);
         }
-      }).map(function(filepath) {
-        // Read file source.
-        return grunt.file.read(filepath);
-      }).join(grunt.util.normalizelf(options.separator));
 
-      // Handle options.
-      src += options.punctuation;
-
-      // Write the destination file.
-      grunt.file.write(f.dest, src);
-
-      // Print a success message.
-      grunt.log.writeln('File "' + f.dest + '" created.');
-    });
-  });
-
+        done();
+      } catch (errorMsg) {
+        grunt.log.error(errorMsg);
+        done(false);
+      }
+    }
+  );
 };
