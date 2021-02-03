@@ -34,8 +34,8 @@ module.exports = function (grunt) {
         // Initiate the release creation process.
         grunt.log.subhead('Connecting to GitHub...');
 
-        await checkRepo(RELEASE_API, repo, accessToken);
-        grunt.log.ok('The connection has been established.');
+        const checkRepoStatus = await checkRepo(RELEASE_API, repo, accessToken);
+        grunt.log.ok(checkRepoStatus);
 
         // Create a release if the repository is accessible.
         grunt.log.subhead(`Creating new release "${releaseData.tagName}" on GitHub...`);
