@@ -1,5 +1,7 @@
 # grunt-github-release
 
+(Work in Progress)
+
 > A Grunt plugin to automate the process of creating a GitHub release for your project.
 
 ## Getting Started
